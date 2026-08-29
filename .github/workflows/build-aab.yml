@@ -1,0 +1,34 @@
+name: Build AAB for Play Store
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - name: Install
+        run: |
+          unzip -o bluetooth-forget-alert.zip -d app || true
+          ls -R
+          npm install || true
+      - name: Prebuild
+        run: npx expo prebuild --platform android --non-interactive || true
+      - name: Build AAB
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: bluetooth-guard-aab
+          path: android/app/build/outputs/bundle/release/*.aab
