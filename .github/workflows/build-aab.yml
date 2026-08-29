@@ -13,22 +13,18 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
-      - name: Build fresh app
+      - name: Build
         run: |
-          rm -rf android app bluetooth-forget-alert.zip || true
-          npx -y create-expo-app@latest temp-app --template blank --no-install
-          mv temp-app/*./
-          mv temp-app/.*./ 2>/dev/null || true
-          rm -rf temp-app
-          npm install --legacy-peer-deps
-          npm install expo-device expo-notifications --legacy-peer-deps
-          npx expo prebuild --platform android --non-interactive
-      - name: Build AAB
-        run: |
+          npx --yes create-expo-app temp --template blank --no-install
+          cp -r temp/..
+          rm -rf temp
+          rm -f bluetooth-forget-alert.zip
+          npm install
+          npx expo prebuild --platform android --no-install
           cd android
           chmod +x gradlew
          ./gradlew bundleRelease
-      - name: Upload AAB
+      - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: bluetooth-guard-aab
